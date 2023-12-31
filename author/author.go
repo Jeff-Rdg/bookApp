@@ -3,6 +3,7 @@ package author
 import (
 	"errors"
 	"gorm.io/gorm"
+	"io"
 	"regexp"
 )
 
@@ -24,6 +25,7 @@ type UseCase interface {
 	GetById(id uint) (*Author, error)
 	Create(request Request) (uint, error)
 	Update(id uint, request Request) (uint, error)
+	ReadCsv(reader io.Reader, action func(request Request) error) error
 }
 
 // NewAuthor receiver Request with params, and create a new User
