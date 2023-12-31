@@ -13,7 +13,7 @@ var (
 
 type Author struct {
 	gorm.Model
-	Name string `json:"name"`
+	Name string `json:"name" gorm:"unique"`
 }
 
 type Request struct {
@@ -26,7 +26,6 @@ type UseCase interface {
 	Update(id uint, request Request) (uint, error)
 }
 
-// constructors
 // NewAuthor receiver Request with params, and create a new User
 func NewAuthor(request Request) (*Author, error) {
 	err := validateUser(request.Name)
@@ -60,4 +59,12 @@ func isValidName(name string) bool {
 	regexName := regexp.MustCompile("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")
 
 	return regexName.MatchString(name)
+}
+
+func (a *Author) UpdateDiffFields(request Request) {
+	if request.Name != "" {
+		if a.Name != request.Name {
+			a.Name = request.Name
+		}
+	}
 }
