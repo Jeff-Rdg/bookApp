@@ -1,6 +1,10 @@
 package author
 
-import "gorm.io/gorm"
+import (
+	"encoding/csv"
+	"gorm.io/gorm"
+	"io"
+)
 
 type Service struct {
 	Db *gorm.DB
@@ -54,4 +58,26 @@ func (s *Service) findById(id uint) (*Author, error) {
 		return nil, err
 	}
 	return author, nil
+}
+
+func (s *Service) ReadCsv(reader io.Reader, action func(request Request) error) error {
+	csvReader := csv.NewReader(reader)
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return err
+		}
+
+		request := Request{Name: record[0]}
+
+		err = action(request)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
