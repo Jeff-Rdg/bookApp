@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"BookApp/author"
 	"github.com/glebarez/sqlite"
 	"github.com/go-chi/jwtauth"
 	"github.com/spf13/viper"
@@ -47,7 +48,7 @@ func LoadDatabase() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate() //todo: add entities
+	err = db.AutoMigrate(author.Author{}) //todo: add entities
 	if err != nil {
 		return nil, err
 	}
