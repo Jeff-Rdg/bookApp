@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"gorm.io/gorm"
 	"io"
+	"log"
 )
 
 type Service struct {
@@ -62,6 +63,10 @@ func (s *Service) findById(id uint) (*Author, error) {
 
 func (s *Service) ReadCsv(reader io.Reader, action func(request Request) error) error {
 	csvReader := csv.NewReader(reader)
+	_, err := csvReader.Read()
+	if err != nil {
+		log.Println("error to read first line:", err)
+	}
 	for {
 		record, err := csvReader.Read()
 		if err == io.EOF {
@@ -76,7 +81,9 @@ func (s *Service) ReadCsv(reader io.Reader, action func(request Request) error) 
 
 		err = action(request)
 		if err != nil {
-			return err
+			log.Printf("author exists: %s", request.Name)
+			log.Println(err)
+			continue
 		}
 	}
 	return nil
