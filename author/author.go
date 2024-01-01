@@ -58,7 +58,7 @@ func validateUser(name string) error {
 }
 
 func isValidName(name string) bool {
-	regexName := regexp.MustCompile("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")
+	regexName := regexp.MustCompile("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s.]+$")
 
 	return regexName.MatchString(name)
 }
