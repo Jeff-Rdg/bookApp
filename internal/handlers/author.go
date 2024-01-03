@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"BookApp/author"
+	"BookApp/pkg"
 	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
@@ -63,4 +64,24 @@ func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RenderJSON(w, http.StatusOK, "csv uploaded successfully", nil)
+}
+
+func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
+	limit := r.URL.Query().Get("limit")
+	page := r.URL.Query().Get("page")
+	sort := r.URL.Query().Get("sort")
+
+	pagination, err := pkg.NewPagination(limit, page, sort)
+	if err != nil {
+		RenderJSON(w, http.StatusBadRequest, "error to parse queries", err)
+		return
+	}
+
+	result, err := a.AuthorService.List(*pagination)
+	if err != nil {
+		RenderJSON(w, http.StatusBadRequest, "error to list authors", err)
+		return
+	}
+
+	RenderJSON(w, http.StatusOK, "", result)
 }
