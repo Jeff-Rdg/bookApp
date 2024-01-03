@@ -1,6 +1,7 @@
 package author
 
 import (
+	"BookApp/pkg"
 	"encoding/csv"
 	"gorm.io/gorm"
 	"io"
@@ -21,6 +22,15 @@ func (s *Service) GetById(id uint) (*Author, error) {
 		return nil, err
 	}
 	return author, nil
+}
+
+func (s *Service) List(pagination pkg.Pagination) (*pkg.Pagination, error) {
+	var authors []*Author
+
+	s.Db.Scopes(pkg.Paginate(authors, &pagination, s.Db)).Find(&authors)
+	pagination.Rows = authors
+
+	return &pagination, nil
 }
 
 func (s *Service) Create(request Request) (uint, error) {
@@ -51,16 +61,6 @@ func (s *Service) Update(id uint, request Request) (uint, error) {
 	return author.ID, nil
 }
 
-// Internal methods
-func (s *Service) findById(id uint) (*Author, error) {
-	var author *Author
-	err := s.Db.First(&author, id).Error
-	if err != nil {
-		return nil, err
-	}
-	return author, nil
-}
-
 func (s *Service) ReadCsv(reader io.Reader, action func(request Request) error) error {
 	csvReader := csv.NewReader(reader)
 	_, err := csvReader.Read()
@@ -87,4 +87,14 @@ func (s *Service) ReadCsv(reader io.Reader, action func(request Request) error) 
 		}
 	}
 	return nil
+}
+
+// Internal methods
+func (s *Service) findById(id uint) (*Author, error) {
+	var author *Author
+	err := s.Db.First(&author, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return author, nil
 }
