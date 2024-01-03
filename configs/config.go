@@ -48,7 +48,7 @@ func LoadDatabase() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(author.Author{}) //todo: add entities
+	err = db.AutoMigrate(author.Author{})
 	if err != nil {
 		return nil, err
 	}
