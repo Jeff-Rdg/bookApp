@@ -19,35 +19,35 @@ func NewAuthorHandler(service author.UseCase) *AuthorHandler {
 func (a *AuthorHandler) FindById(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "id")
 	if param == "" {
-		RenderJSON(w, http.StatusBadRequest, "no id informed", nil)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No id informed"})
 		return
 	}
 
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		RenderJSON(w, http.StatusBadRequest, "error to find author", err)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find author", Data: err})
 		return
 	}
 
 	result, err := a.AuthorService.GetById(uint(id))
 	if err != nil {
-		RenderJSON(w, http.StatusBadRequest, "error to find author", err)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find author", Data: err})
 		return
 	}
 
-	RenderJSON(w, http.StatusOK, "", result)
+	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
 }
 
 func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		RenderJSON(w, http.StatusBadRequest, "error to analisys form", err)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to analisys form", Data: err})
 		return
 	}
 
 	file, _, err := r.FormFile("csv_file")
 	if err != nil {
-		RenderJSON(w, http.StatusBadRequest, "error to get CSV", err)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to get CSV", Data: err})
 		return
 	}
 
@@ -59,11 +59,11 @@ func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		RenderJSON(w, http.StatusBadRequest, "error to process CSV", err)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to process CSV", Data: err})
 		return
 	}
 
-	RenderJSON(w, http.StatusOK, "csv uploaded successfully", nil)
+	RenderJSON(w, Result{StatusCode: http.StatusOK, Message: "csv uploaded successfully"})
 }
 
 func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -73,15 +73,15 @@ func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	pagination, err := pkg.NewPagination(limit, page, sort)
 	if err != nil {
-		RenderJSON(w, http.StatusBadRequest, "error to parse queries", err)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to parse queries", Data: err})
 		return
 	}
 
 	result, err := a.AuthorService.List(*pagination)
 	if err != nil {
-		RenderJSON(w, http.StatusBadRequest, "error to list authors", err)
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to list authors", Data: err})
 		return
 	}
 
-	RenderJSON(w, http.StatusOK, "", result)
+	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
 }
