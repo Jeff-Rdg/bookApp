@@ -12,10 +12,22 @@ type Response struct {
 	Error    interface{} `json:"error,omitempty"`
 }
 
-func RenderJSON(w http.ResponseWriter, statusCode int, message string, data interface{}) {
-	var result interface{}
-	var response Response
+type Result struct {
+	StatusCode int
+	Message    string
+	Data       interface{}
+}
 
+func RenderJSON(w http.ResponseWriter, result Result) {
+	response := switchResponse(result.Data, result.Message)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(result.StatusCode)
+	json.NewEncoder(w).Encode(response)
+}
+
+func switchResponse(data interface{}, message string) Response {
+	var result interface{}
 	switch data.(type) {
 	case error:
 		value, ok := data.(error)
@@ -24,22 +36,17 @@ func RenderJSON(w http.ResponseWriter, statusCode int, message string, data inte
 		} else {
 			result = data
 		}
-		response = Response{
+		return Response{
 			Message: message,
 			Error:   result,
 		}
 	default:
 		result = data
-		response = Response{
+		return Response{
 			Message:  message,
 			Response: result,
 		}
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-
-	json.NewEncoder(w).Encode(response)
 }
 
 func errorsToList(err error) []string {
