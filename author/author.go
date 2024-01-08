@@ -1,7 +1,8 @@
 package author
 
 import (
-	"BookApp/pkg"
+	"BookApp/pkg/filter"
+	"BookApp/pkg/pagination"
 	"errors"
 	"gorm.io/gorm"
 	"io"
@@ -27,7 +28,7 @@ type UseCase interface {
 	Create(request Request) (uint, error)
 	Update(id uint, request Request) (uint, error)
 	ReadCsv(reader io.Reader, action func(request Request) error) error
-	List(pagination pkg.Pagination) (*pkg.Pagination, error)
+	List(pagination pagination.Pagination, filter filter.Author) (*pagination.Pagination, error)
 }
 
 // NewAuthor receiver Request with params, and create a new User

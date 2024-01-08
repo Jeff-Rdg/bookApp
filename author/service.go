@@ -1,7 +1,8 @@
 package author
 
 import (
-	"BookApp/pkg"
+	"BookApp/pkg/filter"
+	"BookApp/pkg/pagination"
 	"encoding/csv"
 	"gorm.io/gorm"
 	"io"
@@ -24,13 +25,13 @@ func (s *Service) GetById(id uint) (*Author, error) {
 	return author, nil
 }
 
-func (s *Service) List(pagination pkg.Pagination) (*pkg.Pagination, error) {
+func (s *Service) List(pag pagination.Pagination, author filter.Author) (*pagination.Pagination, error) {
 	var authors []*Author
 
-	s.Db.Scopes(pkg.Paginate(authors, &pagination, s.Db)).Find(&authors)
-	pagination.Rows = authors
+	s.Db.Scopes(pagination.Paginate(authors, &pag, s.Db, author.Filter)).Find(&authors)
+	pag.Rows = authors
 
-	return &pagination, nil
+	return &pag, nil
 }
 
 func (s *Service) Create(request Request) (uint, error) {

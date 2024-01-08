@@ -1,4 +1,4 @@
-package pkg
+package pagination
 
 import (
 	"errors"
@@ -91,15 +91,16 @@ func (p *Pagination) GetOffset() int {
 	return (p.GetPage() - 1) * p.GetLimit()
 }
 
-func Paginate(value interface{}, pagination *Pagination, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
+func Paginate(value interface{}, pag *Pagination, db *gorm.DB, filterFunc func(db *gorm.DB) *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	var totalRows int64
-	db.Model(value).Count(&totalRows)
 
-	pagination.TotalRows = totalRows
-	totalPages := int(math.Ceil(float64(totalRows) / float64(pagination.GetLimit())))
-	pagination.TotalPages = totalPages
+	db.Model(value).Scopes(filterFunc).Count(&totalRows)
+
+	pag.TotalRows = totalRows
+	totalPages := int(math.Ceil(float64(totalRows) / float64(pag.GetLimit())))
+	pag.TotalPages = totalPages
 
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit()).Order(pagination.GetSort())
+		return db.Scopes(filterFunc).Offset(pag.GetOffset()).Limit(pag.GetLimit()).Order(pag.GetSort())
 	}
 }

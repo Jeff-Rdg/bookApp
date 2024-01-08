@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"BookApp/author"
-	"BookApp/pkg"
+	"BookApp/pkg/filter"
+	"BookApp/pkg/pagination"
 	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
@@ -70,14 +71,17 @@ func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
 	limit := r.URL.Query().Get("limit")
 	page := r.URL.Query().Get("page")
 	sort := r.URL.Query().Get("sort")
+	param := r.URL.Query().Get("name")
 
-	pagination, err := pkg.NewPagination(limit, page, sort)
+	aux := filter.Author{Name: param}
+
+	pag, err := pagination.NewPagination(limit, page, sort)
 	if err != nil {
 		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to parse queries", Data: err})
 		return
 	}
 
-	result, err := a.AuthorService.List(*pagination)
+	result, err := a.AuthorService.List(*pag, aux)
 	if err != nil {
 		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to list authors", Data: err})
 		return
