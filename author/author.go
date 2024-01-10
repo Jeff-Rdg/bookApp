@@ -1,7 +1,6 @@
 package author
 
 import (
-	"BookApp/book"
 	"BookApp/pkg/filter"
 	"BookApp/pkg/pagination"
 	"errors"
@@ -17,8 +16,7 @@ var (
 
 type Author struct {
 	gorm.Model
-	Name  string       `json:"name" gorm:"unique"`
-	Books []*book.Book `json:"books,omitempty" gorm:"many2many:book_author"`
+	Name string `json:"name" gorm:"unique"`
 }
 
 type Request struct {
