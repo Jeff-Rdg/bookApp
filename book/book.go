@@ -29,10 +29,16 @@ type Request struct {
 	AuthorsId       []uint `json:"authors_id"`
 }
 
+type UpdateRequest struct {
+	Name            string `json:"name"`
+	Edition         string `json:"edition"`
+	PublicationYear uint   `json:"publication_year"`
+}
+
 type UseCase interface {
 	GetById(id uint) (*Book, error)
 	Create(request Request) (uint, error)
-	Update(id uint, request Request) (uint, error)
+	Update(id uint, request UpdateRequest) (uint, error)
 	Delete(id uint) error
 	List(pagination pagination.Pagination, filter filter.Book) (*pagination.Pagination, error)
 }
@@ -67,7 +73,8 @@ func validateBook(publicationYear uint, authors []*author.Author) error {
 	return nil
 }
 
-func (b *Book) UpdateDiffFields(request Request) {
+func (b *Book) UpdateDiffFields(request UpdateRequest) {
+	now := time.Now()
 	if request.Name != "" && b.Name != request.Name {
 		b.Name = request.Name
 	}
@@ -77,6 +84,8 @@ func (b *Book) UpdateDiffFields(request Request) {
 	}
 
 	if request.PublicationYear != 0 && b.PublicationYear != request.PublicationYear {
-		b.PublicationYear = request.PublicationYear
+		if request.PublicationYear <= uint(now.Year()) {
+			b.PublicationYear = request.PublicationYear
+		}
 	}
 }
