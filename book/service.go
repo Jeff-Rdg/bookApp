@@ -48,8 +48,20 @@ func (s *Service) Create(request Request) (uint, error) {
 	return book.ID, nil
 }
 
-func (s *Service) Update(id uint, request Request) (uint, error) {
-	return 0, nil
+func (s *Service) Update(id uint, request UpdateRequest) (uint, error) {
+	book, err := s.GetById(id)
+	if err != nil {
+		return 0, err
+	}
+
+	book.UpdateDiffFields(request)
+
+	err = s.Db.Save(&book).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return book.ID, nil
 }
 func (s *Service) Delete(id uint) error {
 	return nil
