@@ -68,7 +68,7 @@ func (s *Service) Delete(id uint) error {
 }
 func (s *Service) List(pag pagination.Pagination, book filter.Book) (*pagination.Pagination, error) {
 	var books []*Book
-	s.Db.Scopes(pagination.Paginate(books, &pag, s.Db, book.Filter)).Find(&books)
+	s.Db.Scopes(pagination.Paginate(books, &pag, "books", s.Db, book.Filter)).Find(&books)
 	pag.Rows = books
 
 	return &pag, nil

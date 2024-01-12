@@ -28,7 +28,7 @@ func (s *Service) GetById(id uint) (*Author, error) {
 func (s *Service) List(pag pagination.Pagination, author filter.Author) (*pagination.Pagination, error) {
 	var authors []*Author
 
-	s.Db.Scopes(pagination.Paginate(authors, &pag, s.Db, author.Filter)).Find(&authors)
+	s.Db.Scopes(pagination.Paginate(authors, &pag, "", s.Db, author.Filter)).Find(&authors)
 	pag.Rows = authors
 
 	return &pag, nil

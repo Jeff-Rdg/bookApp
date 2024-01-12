@@ -67,10 +67,22 @@ func handlePagination(limit, page string) (int, int) {
 
 }
 
-func (p *Pagination) GetSort() string {
-	if p.Sort == "" {
+func (p *Pagination) GetSort(tableName string) string {
+	if p.Sort == "" && tableName == "" {
 		p.Sort = "Id desc"
+		return p.Sort
 	}
+
+	if p.Sort == "" && tableName != "" {
+		p.Sort = tableName + ".Id desc"
+		return p.Sort
+	}
+
+	if p.Sort != "" && tableName != "" {
+		p.Sort = tableName + "." + p.Sort
+		return p.Sort
+	}
+
 	return p.Sort
 }
 
@@ -91,7 +103,7 @@ func (p *Pagination) GetOffset() int {
 	return (p.GetPage() - 1) * p.GetLimit()
 }
 
-func Paginate(value interface{}, pag *Pagination, db *gorm.DB, filterFunc func(db *gorm.DB) *gorm.DB) func(db *gorm.DB) *gorm.DB {
+func Paginate(value interface{}, pag *Pagination, tableName string, db *gorm.DB, filterFunc func(db *gorm.DB) *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	var totalRows int64
 
 	db.Model(value).Scopes(filterFunc).Count(&totalRows)
@@ -101,6 +113,6 @@ func Paginate(value interface{}, pag *Pagination, db *gorm.DB, filterFunc func(d
 	pag.TotalPages = totalPages
 
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Scopes(filterFunc).Offset(pag.GetOffset()).Limit(pag.GetLimit()).Order(pag.GetSort())
+		return db.Scopes(filterFunc).Offset(pag.GetOffset()).Limit(pag.GetLimit()).Order(pag.GetSort(tableName))
 	}
 }

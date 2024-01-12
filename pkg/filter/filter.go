@@ -1,6 +1,9 @@
 package filter
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
 
 type Author struct {
 	Name string `json:"name"`
@@ -21,7 +24,8 @@ func (a *Author) Filter(db *gorm.DB) *gorm.DB {
 }
 
 func (b *Book) Filter(db *gorm.DB) *gorm.DB {
-	db = db.Preload("Author")
+	db = db.Preload(clause.Associations).Joins("inner join book_author ab ON books.id = ab.book_id").
+		Joins("inner join authors a ON a.id = ab.author_id")
 	if b.Name != "" {
 		db = db.Where("name like ?", "%"+b.Name+"%")
 	}
@@ -32,7 +36,8 @@ func (b *Book) Filter(db *gorm.DB) *gorm.DB {
 		db = db.Where("publication_year = ?", b.PublicationYear)
 	}
 	if b.AuthorName != "" {
-		db = db.Where("authors.name like ?", "%"+b.AuthorName+"%")
+		db = db.
+			Where("a.name like ?", "%"+b.AuthorName+"%")
 	}
 	return db
 }
