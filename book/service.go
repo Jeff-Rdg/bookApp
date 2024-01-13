@@ -48,13 +48,16 @@ func (s *Service) Create(request Request) (uint, error) {
 	return book.ID, nil
 }
 
-func (s *Service) Update(id uint, request UpdateRequest) (uint, error) {
+func (s *Service) Update(id uint, request Request) (uint, error) {
 	book, err := s.GetById(id)
 	if err != nil {
 		return 0, err
 	}
 
-	book.UpdateDiffFields(request)
+	err = book.UpdateDiffFields(request, s.Db)
+	if err != nil {
+		return 0, err
+	}
 
 	err = s.Db.Save(&book).Error
 	if err != nil {

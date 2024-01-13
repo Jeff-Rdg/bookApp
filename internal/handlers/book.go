@@ -60,7 +60,7 @@ func (b *BookHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *BookHandler) Update(w http.ResponseWriter, r *http.Request) {
-	var bookRequest book.UpdateRequest
+	var bookRequest book.Request
 	param := chi.URLParam(r, "id")
 	if param == "" {
 		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No id informed"})

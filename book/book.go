@@ -29,16 +29,10 @@ type Request struct {
 	AuthorsId       []uint `json:"authors_id"`
 }
 
-type UpdateRequest struct {
-	Name            string `json:"name"`
-	Edition         string `json:"edition"`
-	PublicationYear uint   `json:"publication_year"`
-}
-
 type UseCase interface {
 	GetById(id uint) (*Book, error)
 	Create(request Request) (uint, error)
-	Update(id uint, request UpdateRequest) (uint, error)
+	Update(id uint, request Request) (uint, error)
 	Delete(id uint) error
 	List(pagination pagination.Pagination, filter filter.Book) (*pagination.Pagination, error)
 }
@@ -73,7 +67,7 @@ func validateBook(publicationYear uint, authors []*author.Author) error {
 	return nil
 }
 
-func (b *Book) UpdateDiffFields(request UpdateRequest) {
+func (b *Book) UpdateDiffFields(request Request, db *gorm.DB) error {
 	now := time.Now()
 	if request.Name != "" && b.Name != request.Name {
 		b.Name = request.Name
@@ -88,4 +82,20 @@ func (b *Book) UpdateDiffFields(request UpdateRequest) {
 			b.PublicationYear = request.PublicationYear
 		}
 	}
+
+	if len(request.AuthorsId) > 0 {
+		var findedAuthors []*author.Author
+		db.Model(&b).Association("Authors").Clear()
+		service := author.Service{Db: db}
+		for _, id := range request.AuthorsId {
+			findedAuthor, err := service.GetById(id)
+			if err != nil {
+				return err
+			}
+			findedAuthors = append(findedAuthors, findedAuthor)
+
+		}
+		db.Model(&b).Association("Authors").Append(findedAuthors)
+	}
+	return nil
 }
