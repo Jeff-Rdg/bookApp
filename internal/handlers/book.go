@@ -56,7 +56,7 @@ func (b *BookHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RenderJSON(w, Result{StatusCode: http.StatusCreated, Message: fmt.Sprintf("book with id %v created sucessfully", id)})
+	RenderJSON(w, Result{StatusCode: http.StatusCreated, Message: fmt.Sprintf("book with id %v created successfully", id)})
 }
 
 func (b *BookHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -86,6 +86,27 @@ func (b *BookHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RenderJSON(w, Result{StatusCode: http.StatusOK, Message: fmt.Sprintf("book with id %v updated sucessfully", updatedId)})
+}
+
+func (b *BookHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	param := chi.URLParam(r, "id")
+	if param == "" {
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No id informed"})
+		return
+	}
+
+	id, err := strconv.Atoi(param)
+	if err != nil {
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "invalid id informed", Data: err})
+		return
+	}
+
+	err = b.BookService.Delete(uint(id))
+	if err != nil {
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to delete book", Data: err})
+	}
+
+	RenderJSON(w, Result{StatusCode: http.StatusOK, Message: fmt.Sprintf("book with id %v deleted successfully", id)})
 }
 
 func (b *BookHandler) List(w http.ResponseWriter, r *http.Request) {
