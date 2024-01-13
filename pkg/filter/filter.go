@@ -24,8 +24,8 @@ func (a *Author) Filter(db *gorm.DB) *gorm.DB {
 }
 
 func (b *Book) Filter(db *gorm.DB) *gorm.DB {
-	db = db.Preload(clause.Associations).Joins("inner join book_author ab ON books.id = ab.book_id").
-		Joins("inner join authors a ON a.id = ab.author_id")
+	db = db.Preload(clause.Associations)
+
 	if b.Name != "" {
 		db = db.Where("name like ?", "%"+b.Name+"%")
 	}
@@ -36,7 +36,8 @@ func (b *Book) Filter(db *gorm.DB) *gorm.DB {
 		db = db.Where("publication_year = ?", b.PublicationYear)
 	}
 	if b.AuthorName != "" {
-		db = db.
+		db = db.Joins("inner join book_author ab ON books.id = ab.book_id").
+			Joins("inner join authors a ON a.id = ab.author_id").
 			Where("a.name like ?", "%"+b.AuthorName+"%")
 	}
 	return db
