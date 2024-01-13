@@ -39,6 +39,22 @@ func (a *AuthorHandler) FindById(w http.ResponseWriter, r *http.Request) {
 	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
 }
 
+func (a *AuthorHandler) FindByName(w http.ResponseWriter, r *http.Request) {
+	param := chi.URLParam(r, "name")
+	if param == "" {
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No name informed"})
+		return
+	}
+
+	result, err := a.AuthorService.GetByName(param)
+	if err != nil {
+		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find author", Data: err})
+		return
+	}
+
+	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
+}
+
 func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {

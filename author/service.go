@@ -25,6 +25,14 @@ func (s *Service) GetById(id uint) (*Author, error) {
 	return author, nil
 }
 
+func (s *Service) GetByName(name string) ([]*Author, error) {
+	authors, err := s.findByName(name)
+	if err != nil {
+		return nil, err
+	}
+	return authors, nil
+}
+
 func (s *Service) List(pag pagination.Pagination, author filter.Author) (*pagination.Pagination, error) {
 	var authors []*Author
 
@@ -98,4 +106,13 @@ func (s *Service) findById(id uint) (*Author, error) {
 		return nil, err
 	}
 	return author, nil
+}
+
+func (s *Service) findByName(name string) ([]*Author, error) {
+	var authors []*Author
+	err := s.Db.Where("name like ?", "%"+name+"%").Find(&authors).Error
+	if err != nil {
+		return nil, err
+	}
+	return authors, nil
 }

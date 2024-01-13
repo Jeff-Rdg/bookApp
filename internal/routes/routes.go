@@ -22,6 +22,7 @@ func LoadRoutes(db *gorm.DB) *chi.Mux {
 
 	r.Route("/author", func(r chi.Router) {
 		r.Get("/{id}", authorHandler.FindById)
+		r.Get("/{name}", authorHandler.FindByName)
 		r.Get("/list", authorHandler.List)
 		r.Post("/upload_csv", authorHandler.UploadCsv)
 	})
