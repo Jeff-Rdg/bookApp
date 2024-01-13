@@ -16,7 +16,7 @@ var (
 
 type Book struct {
 	gorm.Model
-	Name            string           `json:"name"`
+	Name            string           `json:"name" gorm:"unique"`
 	Edition         string           `json:"edition"`
 	PublicationYear uint             `json:"publication_year"`
 	Authors         []*author.Author `json:"authors" gorm:"many2many:book_author"`
