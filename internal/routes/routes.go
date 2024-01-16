@@ -21,15 +21,15 @@ func LoadRoutes(db *gorm.DB) *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	r.Route("/author", func(r chi.Router) {
-		r.Get("/{id}", authorHandler.FindById)
-		r.Get("/{name}", authorHandler.FindByName)
-		r.Get("/list", authorHandler.List)
+		r.Get("/", authorHandler.List)
 		r.Post("/upload_csv", authorHandler.UploadCsv)
+		r.Get("/{id:[0-9]+}", authorHandler.FindById)
+		r.Get("/search/{name}", authorHandler.FindByName)
 	})
 
 	r.Route("/book", func(r chi.Router) {
+		r.Get("/", bookHandler.List)
 		r.Get("/{id}", bookHandler.FindById)
-		r.Get("/list", bookHandler.List)
 		r.Post("/", bookHandler.Create)
 		r.Put("/{id}", bookHandler.Update)
 		r.Delete("/{id}", bookHandler.Delete)

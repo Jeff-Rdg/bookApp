@@ -22,23 +22,34 @@ func NewBookHandler(service book.UseCase) *BookHandler {
 func (b *BookHandler) FindById(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "id")
 	if param == "" {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No id informed"})
+		MakeErrorResponse("error to find book by id",
+			"the requested endpoint requires the query id parameter",
+			http.StatusBadRequest,
+			nil, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find book", Data: err})
+		MakeErrorResponse("error to find book by id",
+			"parameter with invalid format",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	result, err := b.BookService.GetById(uint(id))
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find book", Data: err})
+		MakeErrorResponse("error to find book by id",
+			"",
+			http.StatusNotFound,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
-
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
+	MakeSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
 }
 
 func (b *BookHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -46,67 +57,102 @@ func (b *BookHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&newBook)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "Error to decode body", Data: err})
+		MakeErrorResponse("error to create new book",
+			"error to decode body",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	id, err := b.BookService.Create(newBook)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "Error to create book", Data: err})
+		MakeErrorResponse("error to create new book",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
-	RenderJSON(w, Result{StatusCode: http.StatusCreated, Message: fmt.Sprintf("book with id %v created successfully", id)})
+	MakeSuccessResponse(http.StatusCreated, fmt.Sprintf("book with id %v created successfully", id), nil).RenderJSON(w)
 }
 
 func (b *BookHandler) Update(w http.ResponseWriter, r *http.Request) {
 	var bookRequest book.Request
 	param := chi.URLParam(r, "id")
 	if param == "" {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No id informed"})
+		MakeErrorResponse("error to update book",
+			"the requested endpoint requires the query id parameter",
+			http.StatusBadRequest,
+			nil, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "invalid format to id", Data: err})
+		MakeErrorResponse("error to update book",
+			"parameter with invalid format",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	err = json.NewDecoder(r.Body).Decode(&bookRequest)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "Error to decode body", Data: err})
+		MakeErrorResponse("error to update book",
+			"Error to decode body",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	updatedId, err := b.BookService.Update(uint(id), bookRequest)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "Error to update book", Data: err})
+		MakeErrorResponse("error to update book",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Message: fmt.Sprintf("book with id %v updated sucessfully", updatedId)})
+	MakeSuccessResponse(http.StatusOK, fmt.Sprintf("book with id %v updated sucessfully", updatedId), nil).RenderJSON(w)
 }
 
 func (b *BookHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "id")
 	if param == "" {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No id informed"})
+		MakeErrorResponse("error to delete book",
+			"the requested endpoint requires the query id parameter",
+			http.StatusBadRequest,
+			nil, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "invalid id informed", Data: err})
+		MakeErrorResponse("error to delete book",
+			"parameter with invalid format",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	err = b.BookService.Delete(uint(id))
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to delete book", Data: err})
+		MakeErrorResponse("error to delete book",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 	}
-
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Message: fmt.Sprintf("book with id %v deleted successfully", id)})
+	MakeSuccessResponse(http.StatusOK, fmt.Sprintf("book with id %v updated sucessfully", id), nil).RenderJSON(w)
 }
 
 func (b *BookHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +170,11 @@ func (b *BookHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	paramIntPubYear, err := strconv.Atoi(paramPubYear)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to parse queries", Data: err})
+		MakeErrorResponse("error to list books",
+			"error to parse queries",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
@@ -137,15 +187,22 @@ func (b *BookHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	pag, err := pagination.NewPagination(limit, page, sort)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to parse queries", Data: err})
+		MakeErrorResponse("error to list books",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	result, err := b.BookService.List(*pag, aux)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to list authors", Data: err})
+		MakeErrorResponse("error to list books",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
-
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
+	MakeSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
 }

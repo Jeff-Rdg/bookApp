@@ -20,51 +20,78 @@ func NewAuthorHandler(service author.UseCase) *AuthorHandler {
 func (a *AuthorHandler) FindById(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "id")
 	if param == "" {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No id informed"})
+		MakeErrorResponse("error to find author by id",
+			"the requested endpoint requires the query id parameter",
+			http.StatusBadRequest,
+			nil, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find author", Data: err})
+		MakeErrorResponse("error to find author by id",
+			"parameter with invalid format",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	result, err := a.AuthorService.GetById(uint(id))
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find author", Data: err})
+		MakeErrorResponse("error to find author by id",
+			"",
+			http.StatusNotFound,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
-
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
+	MakeSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
 }
 
 func (a *AuthorHandler) FindByName(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "name")
 	if param == "" {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "No name informed"})
+		MakeErrorResponse("error to find author by name",
+			"the requested endpoint requires the query name parameter",
+			http.StatusBadRequest,
+			nil, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	result, err := a.AuthorService.GetByName(param)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to find author", Data: err})
+		MakeErrorResponse("error to find author by name",
+			"",
+			http.StatusNotFound,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
+	MakeSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
 }
 
 func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to analisys form", Data: err})
+		MakeErrorResponse("error to Upload csv file",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	file, _, err := r.FormFile("csv_file")
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to get CSV", Data: err})
+		MakeErrorResponse("error to read csv file",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
@@ -76,11 +103,15 @@ func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to process CSV", Data: err})
+		MakeErrorResponse("error to process csv file",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Message: "csv uploaded successfully"})
+	MakeSuccessResponse(http.StatusOK, "csv uploaded successfully", nil).RenderJSON(w)
 }
 
 func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -93,15 +124,23 @@ func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	pag, err := pagination.NewPagination(limit, page, sort)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to parse queries", Data: err})
+		MakeErrorResponse("error to list authors",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
 	result, err := a.AuthorService.List(*pag, aux)
 	if err != nil {
-		RenderJSON(w, Result{StatusCode: http.StatusBadRequest, Message: "error to list authors", Data: err})
+		MakeErrorResponse("error to list authors",
+			"",
+			http.StatusBadRequest,
+			err, r.URL.Path).
+			RenderJSON(w)
 		return
 	}
 
-	RenderJSON(w, Result{StatusCode: http.StatusOK, Data: result})
+	MakeSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
 }
