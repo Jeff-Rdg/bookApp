@@ -6,55 +6,66 @@ import (
 	"strings"
 )
 
-type Response struct {
-	Message  string      `json:"message,omitempty"`
-	Response interface{} `json:"response,omitempty"`
-	Error    interface{} `json:"error,omitempty"`
+type ApiResponse[T SuccessResponse | ErrorResponse] interface {
+	RenderJSON(w http.ResponseWriter)
 }
 
-type Result struct {
-	StatusCode int
-	Message    string
-	Data       interface{}
+type SuccessResponse struct {
+	StatusCode int         `json:"-"`
+	Message    string      `json:"message,omitempty"`
+	Data       interface{} `json:"response,omitempty"`
+}
+type ErrorResponse struct {
+	Title      string   `json:"title"`
+	Detail     string   `json:"detail,omitempty"`
+	StatusCode int      `json:"status"`
+	Error      []string `json:"error,omitempty"`
+	Instance   string   `json:"instance"`
 }
 
-func RenderJSON(w http.ResponseWriter, result Result) {
-	response := switchResponse(result.Data, result.Message)
+func MakeSuccessResponse(statusCode int, message string, data interface{}) *SuccessResponse {
+	return &SuccessResponse{
+		StatusCode: statusCode,
+		Message:    message,
+		Data:       data,
+	}
+}
+
+func MakeErrorResponse(title, detail string, status int, err error, instance string) *ErrorResponse {
+	if detail == "" && err != nil {
+		detail = "please, refer to the errors property for additional details"
+	}
+	errs := errorsToList(err)
+	return &ErrorResponse{
+		Title:      title,
+		Detail:     detail,
+		StatusCode: status,
+		Error:      errs,
+		Instance:   instance,
+	}
+}
+
+func (s *SuccessResponse) RenderJSON(w http.ResponseWriter) {
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(result.StatusCode)
-	json.NewEncoder(w).Encode(response)
+	w.WriteHeader(s.StatusCode)
+	json.NewEncoder(w).Encode(s)
 }
 
-func switchResponse(data interface{}, message string) Response {
-	var result interface{}
-	switch data.(type) {
-	case error:
-		value, ok := data.(error)
-		if ok {
-			result = errorsToList(value)
-		} else {
-			result = data
-		}
-		return Response{
-			Message: message,
-			Error:   result,
-		}
-	default:
-		result = data
-		return Response{
-			Message:  message,
-			Response: result,
-		}
-	}
+func (f *ErrorResponse) RenderJSON(w http.ResponseWriter) {
+
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(f.StatusCode)
+	json.NewEncoder(w).Encode(f)
 }
 
 func errorsToList(err error) []string {
 	var errorList []string
 
-	for _, msg := range strings.Split(err.Error(), "\n") {
-		errorList = append(errorList, msg)
+	if err != nil {
+		for _, msg := range strings.Split(err.Error(), "\n") {
+			errorList = append(errorList, msg)
+		}
 	}
-
 	return errorList
 }
