@@ -17,6 +17,14 @@ func NewService(db *gorm.DB) *Service {
 	return &Service{Db: db}
 }
 
+// @Summary Get Author by id
+// @Description Get Author by id
+// @Tags author
+// @Accept json
+// @Produce json
+// @Param id
+// @Success 200 {object} handlers.Response
+// @Router /author [get]
 func (s *Service) GetById(id uint) (*Author, error) {
 	author, err := s.findById(id)
 	if err != nil {
@@ -25,12 +33,12 @@ func (s *Service) GetById(id uint) (*Author, error) {
 	return author, nil
 }
 
-func (s *Service) GetByName(name string) ([]*Author, error) {
-	authors, err := s.findByName(name)
+func (s *Service) GetByName(name string) (*Author, error) {
+	author, err := s.findByName(name)
 	if err != nil {
 		return nil, err
 	}
-	return authors, nil
+	return author, nil
 }
 
 func (s *Service) List(pag pagination.Pagination, author filter.Author) (*pagination.Pagination, error) {
@@ -108,11 +116,11 @@ func (s *Service) findById(id uint) (*Author, error) {
 	return author, nil
 }
 
-func (s *Service) findByName(name string) ([]*Author, error) {
-	var authors []*Author
-	err := s.Db.Where("name like ?", "%"+name+"%").Find(&authors).Error
+func (s *Service) findByName(name string) (*Author, error) {
+	var author *Author
+	err := s.Db.Where("name = ?", name).First(&author).Error
 	if err != nil {
 		return nil, err
 	}
-	return authors, nil
+	return author, nil
 }
