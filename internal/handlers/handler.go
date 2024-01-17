@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type ApiResponse[T SuccessResponse | ErrorResponse] interface {
+type ApiResponse interface {
 	RenderJSON(w http.ResponseWriter)
 }
 
