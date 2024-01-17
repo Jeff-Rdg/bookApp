@@ -6,6 +6,7 @@ import (
 	"BookApp/pkg/pagination"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Service struct {
@@ -86,7 +87,7 @@ func (s *Service) List(pag pagination.Pagination, book filter.Book) (*pagination
 // Internal methods
 func (s *Service) findById(id uint) (*Book, error) {
 	var book *Book
-	err := s.Db.First(&book, id).Error
+	err := s.Db.Preload(clause.Associations).First(&book, id).Error
 	if err != nil {
 		return nil, err
 	}
