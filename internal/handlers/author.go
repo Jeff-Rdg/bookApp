@@ -111,7 +111,7 @@ func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	MakeSuccessResponse(http.StatusOK, "csv uploaded successfully", nil).RenderJSON(w)
+	MakeSuccessResponse(http.StatusCreated, "csv uploaded successfully", nil).RenderJSON(w)
 }
 
 func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
