@@ -12,7 +12,6 @@ Essas instruções permitirão que você obtenha uma cópia do projeto em opera�
 - [Uso](#uso)
 - [Endpoints](#endpoints)
 - [Contribuição](#contribuição)
-- [Licença](#licença)
 
 ## 🔧 Instalação
 
@@ -118,7 +117,7 @@ Content-Length: 184
     "instance": "/author/"
 }
 ```
-**1. GET/author/:id**
+**2. GET/author/:id**
  - Descrição: retorna informações especificas de um autor, buscando por seu id.
  - Parâmetros: id
  - Exemplo:
@@ -160,5 +159,35 @@ Content-Length: 177
     "record not found"
   ],
   "instance": "/author/500"
+}
+```
+
+**3. POST/author/upload_csv**
+ - Descrição: carrega um arquivo .csv realizando a inserção dos autores informados.
+ - Exemplo:
+   ```
+   http://localhost:8080/author/upload_csv
+   ```
+- Modelo arquivo csv:
+```
+| Nome   |
+|--------|
+| João   |
+| Maria  |
+| Carlos |
+| Ana    |
+```
+ - Respostas previstas:
+
+- Success:
+```http
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Wed, 17 Jan 2024 19:24:52 GMT
+Content-Length: 150
+```
+```json
+{
+"message":"csv uploaded successfully"
 }
 ```
