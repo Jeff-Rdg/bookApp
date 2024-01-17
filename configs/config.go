@@ -3,9 +3,10 @@ package configs
 import (
 	"BookApp/author"
 	"BookApp/book"
+	"fmt"
 	"github.com/glebarez/sqlite"
-	"github.com/go-chi/jwtauth"
 	"github.com/spf13/viper"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -17,9 +18,6 @@ type conf struct {
 	DBPassword    string `mapstructure:"DB_PASSWORD"`
 	DBName        string `mapstructure:"DB_NAME"`
 	WebServerPort string `mapstructure:"WEB_SERVER_PORT"`
-	JWTSecret     string `mapstructure:"JWT_SECRET"`
-	JWTExpiresIn  int    `mapstructure:"JWT_EXPIRESIN"`
-	TokenAuth     *jwtauth.JWTAuth
 }
 
 func LoadConfig(path string) (*conf, error) {
@@ -39,12 +37,22 @@ func LoadConfig(path string) (*conf, error) {
 		panic(err)
 	}
 
-	cfg.TokenAuth = jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
 	return cfg, nil
 }
 
-func LoadDatabase() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+func LoadDatabase(conf *conf) (*gorm.DB, error) {
+	var conn gorm.Dialector
+
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+		conf.DBUser, conf.DBPassword, conf.DBHost, conf.DBPort, conf.DBName)
+
+	if conf != nil {
+		conn = mysql.Open(dsn)
+	} else {
+		conn = sqlite.Open("test.db")
+	}
+
+	db, err := gorm.Open(conn, &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
