@@ -13,7 +13,7 @@ Essas instruções permitirão que você obtenha uma cópia do projeto em opera�
 - [Endpoints](#endpoints)
 - [Contribuição](#contribuição)
 
-## 🔧 Instalação
+## Instalação
 
 Certifique-se de ter o Go instalado em seu sistema antes de prosseguir.
 
@@ -53,7 +53,7 @@ Para executar o projeto, se faz necessário a criação de um banco de dados pri
 
 **Observação: Caso não queira realizar o uso do mysql, também é possivel utilizar o sqlite, só necessita tê-lo instalado na máquina, que é criado automaticamente a migração do banco de dados.**
 
-## ⚙️ Uso
+## Uso
 
 Para realizar o controle de livros, é necessário ser feito um cadastro de autores, e para isso a API disponibiliza um endpoint para carregar um CSV com os nomes, fazendo com que seja insertado primeiramente.
 Após isso, é possível realizar as operações CRUD (Create, Read, Update and Delete) para o controle dos livros.
