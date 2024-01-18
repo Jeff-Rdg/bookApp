@@ -254,3 +254,16 @@ Content-Length: 195
     "instance": "/author/upload_csv"
 }
 ```
+### Livros
+
+
+## Contribuição
+
+Se você deseja contribuir para este projeto, siga estas etapas:
+
+- Fork do repositório
+- Crie um branch para sua feature (git checkout -b feature/sua-feature)
+- Faça commit das suas alterações (git commit -m 'Adicione sua feature')
+- Faça push para o branch (git push origin feature/sua-feature)
+- Abra um Pull Request
+- Certifique-se de seguir as diretrizes de contribuição 
