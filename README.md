@@ -162,7 +162,52 @@ Content-Length: 177
 }
 ```
 
-**3. POST/author/upload_csv**
+**3. GET/author/search/:name**
+ - Descrição: retorna informações especificas de um autor, buscando por seu nome.
+ - Parâmetros: name
+ - Exemplo:
+   ```
+   http://localhost:8080/author/search/j.%20k.%20rowling
+   ```
+ - Respostas previstas:
+- Success:
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Wed, 17 Jan 2024 19:24:52 GMT
+Content-Length: 150
+```
+```json
+{
+  "response": {
+    "ID": 1,
+    "CreatedAt": "2024-01-17T14:14:43.912-03:00",
+    "UpdatedAt": "2024-01-17T14:14:43.912-03:00",
+    "DeletedAt": null,
+    "name": "J. K. Rowling"
+  }
+}
+```
+- Not Found:
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/problem+json
+Date: Wed, 17 Jan 2024 19:25:38 GMT
+Content-Length: 195
+```
+```json
+{
+    "title": "error to find author by name",
+    "detail": "please, refer to the errors property for additional details",
+    "status": 404,
+    "error": [
+        "record not found"
+    ],
+    "instance": "/author/search/J. K. Rowlin"
+}
+```
+
+**4. POST/author/upload_csv**
  - Descrição: carrega um arquivo .csv realizando a inserção dos autores informados.
  - Exemplo:
    ```
@@ -189,5 +234,23 @@ Content-Length: 150
 ```json
 {
 "message":"csv uploaded successfully"
+}
+```
+- Bad Request:
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/problem+json
+Date: Thu, 18 Jan 2024 13:50:13 GMT
+Content-Length: 195
+```
+```json
+{
+    "title": "error to process csv file",
+    "detail": "please, refer to the errors property for additional details",
+    "status": 400,
+    "error": [
+        "author exists: J. K. Rowling"
+    ],
+    "instance": "/author/upload_csv"
 }
 ```
