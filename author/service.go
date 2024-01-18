@@ -4,7 +4,6 @@ import (
 	"BookApp/pkg/filter"
 	"BookApp/pkg/pagination"
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"io"
@@ -81,7 +80,6 @@ func (s *Service) Update(id uint, request Request) (uint, error) {
 }
 
 func (s *Service) ReadCsv(reader io.Reader, action func(request Request) error) error {
-	var errs []error
 	csvReader := csv.NewReader(reader)
 	_, err := csvReader.Read()
 	if err != nil {
@@ -102,12 +100,8 @@ func (s *Service) ReadCsv(reader io.Reader, action func(request Request) error) 
 		err = action(request)
 		if err != nil {
 			err = fmt.Errorf("author exists: %s", request.Name)
-			errs = append(errs, err)
-			continue
+			return err
 		}
-	}
-	if len(errs) > 0 {
-		return errors.Join(errs...)
 	}
 	return nil
 }
