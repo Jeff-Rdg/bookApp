@@ -23,7 +23,7 @@ type ErrorResponse struct {
 	Instance   string   `json:"instance"`
 }
 
-func MakeSuccessResponse(statusCode int, message string, data interface{}) *SuccessResponse {
+func NewSuccessResponse(statusCode int, message string, data interface{}) *SuccessResponse {
 	return &SuccessResponse{
 		StatusCode: statusCode,
 		Message:    message,
@@ -31,7 +31,7 @@ func MakeSuccessResponse(statusCode int, message string, data interface{}) *Succ
 	}
 }
 
-func MakeErrorResponse(title, detail string, status int, err error, instance string) *ErrorResponse {
+func NewErrorResponse(title, detail string, status int, err error, instance string) *ErrorResponse {
 	if detail == "" && err != nil {
 		detail = "please, refer to the errors property for additional details"
 	}
