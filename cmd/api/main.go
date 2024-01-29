@@ -20,7 +20,7 @@ func main() {
 
 	r := routes.LoadRoutes(db)
 	port := fmt.Sprintf(":%s", conf.WebServerPort)
-	if port == "" {
+	if port == ":" {
 		http.ListenAndServe(":8000", r)
 	} else {
 		http.ListenAndServe(port, r)

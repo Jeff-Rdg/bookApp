@@ -4,7 +4,6 @@ import (
 	"BookApp/author"
 	"BookApp/book"
 	"fmt"
-	"github.com/glebarez/sqlite"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -41,16 +40,10 @@ func LoadConfig(path string) (*conf, error) {
 }
 
 func LoadDatabase(conf *conf) (*gorm.DB, error) {
-	var conn gorm.Dialector
-
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.DBUser, conf.DBPassword, conf.DBHost, conf.DBPort, conf.DBName)
 
-	if conf != nil {
-		conn = mysql.Open(dsn)
-	} else {
-		conn = sqlite.Open("test.db")
-	}
+	conn := mysql.Open(dsn)
 
 	db, err := gorm.Open(conn, &gorm.Config{})
 	if err != nil {
