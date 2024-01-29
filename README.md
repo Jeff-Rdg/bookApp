@@ -214,14 +214,15 @@ Content-Length: 195
    http://localhost:8080/author/upload_csv
    ```
 - Modelo arquivo csv:
-```
-| Nome   |
-|--------|
-| João   |
-| Maria  |
-| Carlos |
-| Ana    |
-```
+
+| Nome     |
+|:--------:|
+| J . K. Rowling     |
+| Maria    |
+| Carlos   |
+| Ana      |
+
+
  - Respostas previstas:
 
 - Success:
