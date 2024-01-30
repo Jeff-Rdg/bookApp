@@ -14,7 +14,7 @@ type Error struct {
 }
 
 type Cause struct {
-	Field   string `json:"field"`
+	Field   string `json:"field,omitempty"`
 	Message string `json:"message"`
 }
 

@@ -32,7 +32,7 @@ type Request struct {
 
 type UseCase interface {
 	GetById(id uint) (*Book, error)
-	Create(request Request) (uint, error)
+	Create(request Request) (uint, []httpResponse.Cause)
 	Update(id uint, request Request) (uint, error)
 	Delete(id uint) error
 	List(pagination pagination.Pagination, filter filter.Book) (*pagination.Pagination, error)

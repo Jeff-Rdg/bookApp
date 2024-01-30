@@ -1,7 +1,8 @@
 package book
 
 import (
-	"BookApp/author"
+	"BookApp/internal/entities/author"
+	"BookApp/internal/httpResponse"
 	"BookApp/pkg/filter"
 	"BookApp/pkg/pagination"
 	"fmt"
@@ -25,25 +26,43 @@ func (s *Service) GetById(id uint) (*Book, error) {
 	return book, nil
 }
 
-func (s *Service) Create(request Request) (uint, error) {
+func (s *Service) Create(request Request) (uint, []httpResponse.Cause) {
 	var authors []*author.Author
+	var causes []httpResponse.Cause
 	var result *author.Author
+
 	for _, value := range request.AuthorsId {
 		err := s.Db.First(&result, value).Error
 		if err != nil {
-			return 0, fmt.Errorf("record with id %v not found", value)
+			cause := httpResponse.Cause{
+				Field:   "authors_id",
+				Message: fmt.Sprintf("record with id %v not found", value),
+			}
+			causes = append(causes, cause)
 		}
-		authors = append(authors, result)
+		if result != nil {
+			authors = append(authors, result)
+		}
 		result = nil
 	}
+
+	if len(causes) > 0 {
+		return 0, causes
+	}
+
 	book, err := NewBook(request.Name, request.Edition, request.PublicationYear, authors)
 	if err != nil {
 		return 0, err
 	}
 
-	err = s.Db.Create(&book).Error
-	if err != nil {
-		return 0, err
+	dbResponseError := s.Db.Create(&book).Error
+	if dbResponseError != nil {
+		cause := httpResponse.Cause{
+			Message: dbResponseError.Error(),
+		}
+
+		causes = append(causes, cause)
+		return 0, causes
 	}
 
 	return book.ID, nil

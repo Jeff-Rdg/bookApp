@@ -50,9 +50,9 @@ func (b *BookHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := b.BookService.Create(newBook)
-	if err != nil {
-		httpResponse.NewBadRequestError("error to create new book", err.Error(), r).RenderJSON(w)
+	id, causes := b.BookService.Create(newBook)
+	if causes != nil {
+		httpResponse.NewBadRequestValidationError("error to create new book", causes, r).RenderJSON(w)
 		return
 	}
 
