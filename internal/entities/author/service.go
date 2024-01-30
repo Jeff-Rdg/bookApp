@@ -51,13 +51,8 @@ func (s *Service) List(pag pagination.Pagination, author filter.Author) (*pagina
 	return &pag, nil
 }
 
-func (s *Service) Create(request Request) (uint, error) {
-	author, err := NewAuthor(request)
-	if err != nil {
-		return 0, err
-	}
-
-	err = s.Db.Create(&author).Error
+func (s *Service) Create(author *Author) (uint, error) {
+	err := s.Db.Create(&author).Error
 	if err != nil {
 		return 0, err
 	}

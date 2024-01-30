@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"BookApp/author"
+	"BookApp/internal/entities/author"
+	"BookApp/internal/httpResponse"
 	"BookApp/pkg/filter"
 	"BookApp/pkg/pagination"
 	"github.com/go-chi/chi"
@@ -20,98 +21,68 @@ func NewAuthorHandler(service author.UseCase) *AuthorHandler {
 func (a *AuthorHandler) FindById(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "id")
 	if param == "" {
-		NewErrorResponse("error to find author by id",
-			"the requested endpoint requires the query id parameter",
-			http.StatusBadRequest,
-			nil, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to find author by id", "no parameter informed", r).RenderJSON(w)
 		return
 	}
 
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		NewErrorResponse("error to find author by id",
-			"parameter with invalid format",
-			http.StatusBadRequest,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to find author by id", err.Error(), r).RenderJSON(w)
 		return
 	}
 
 	result, err := a.AuthorService.GetById(uint(id))
 	if err != nil {
-		NewErrorResponse("error to find author by id",
-			"",
-			http.StatusNotFound,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewNotFoundError("error to find author by id", err.Error(), r).RenderJSON(w)
 		return
 	}
-	NewSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
+
+	httpResponse.NewSuccessResponse(result).RenderJSON(w)
 }
 
 func (a *AuthorHandler) FindByName(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "name")
 	if param == "" {
-		NewErrorResponse("error to find author by name",
-			"the requested endpoint requires the query name parameter",
-			http.StatusBadRequest,
-			nil, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to find author by name", "no parameter informed", r).RenderJSON(w)
 		return
 	}
 
 	result, err := a.AuthorService.GetByName(param)
 	if err != nil {
-		NewErrorResponse("error to find author by name",
-			"",
-			http.StatusNotFound,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewNotFoundError("error to find author by name", err.Error(), r).RenderJSON(w)
 		return
 	}
 
-	NewSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
+	httpResponse.NewSuccessResponse(result).RenderJSON(w)
 }
 
 func (a *AuthorHandler) UploadCsv(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		NewErrorResponse("error to Upload csv file",
-			"",
-			http.StatusBadRequest,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to Upload csv file", err.Error(), r).RenderJSON(w)
 		return
 	}
 
 	file, _, err := r.FormFile("csv_file")
 	if err != nil {
-		NewErrorResponse("error to read csv file",
-			"",
-			http.StatusBadRequest,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to read csv file", err.Error(), r).RenderJSON(w)
 		return
 	}
 
 	defer file.Close()
 
 	err = a.AuthorService.ReadCsv(file, func(request author.Request) error {
-		_, err = a.AuthorService.Create(request)
+		aut, _ := author.NewAuthor(request)
+		_, err = a.AuthorService.Create(aut)
 		return err
 	})
 
 	if err != nil {
-		NewErrorResponse("error to process csv file",
-			"",
-			http.StatusBadRequest,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to process csv file", err.Error(), r).RenderJSON(w)
 		return
 	}
 
-	NewSuccessResponse(http.StatusCreated, "csv uploaded successfully", nil).RenderJSON(w)
+	httpResponse.NewCreatedResponse("csv uploaded successfully").RenderJSON(w)
 }
 
 func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -124,23 +95,15 @@ func (a *AuthorHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	pag, err := pagination.NewPagination(limit, page, sort)
 	if err != nil {
-		NewErrorResponse("error to list authors",
-			"",
-			http.StatusBadRequest,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to list authors", err.Error(), r).RenderJSON(w)
 		return
 	}
 
 	result, err := a.AuthorService.List(*pag, aux)
 	if err != nil {
-		NewErrorResponse("error to list authors",
-			"",
-			http.StatusBadRequest,
-			err, r.URL.Path).
-			RenderJSON(w)
+		httpResponse.NewBadRequestError("error to list authors", err.Error(), r).RenderJSON(w)
 		return
 	}
 
-	NewSuccessResponse(http.StatusOK, "", result).RenderJSON(w)
+	httpResponse.NewSuccessResponse(result).RenderJSON(w)
 }

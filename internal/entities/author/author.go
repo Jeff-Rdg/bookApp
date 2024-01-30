@@ -1,6 +1,7 @@
 package author
 
 import (
+	"BookApp/internal/httpResponse"
 	"BookApp/pkg/filter"
 	"BookApp/pkg/pagination"
 	"errors"
@@ -26,14 +27,14 @@ type Request struct {
 type UseCase interface {
 	GetById(id uint) (*Author, error)
 	GetByName(name string) (*Author, error)
-	Create(request Request) (uint, error)
+	Create(author *Author) (uint, error)
 	Update(id uint, request Request) (uint, error)
 	ReadCsv(reader io.Reader, action func(request Request) error) error
 	List(pagination pagination.Pagination, filter filter.Author) (*pagination.Pagination, error)
 }
 
 // NewAuthor receiver Request with params, and create a new User
-func NewAuthor(request Request) (*Author, error) {
+func NewAuthor(request Request) (*Author, []httpResponse.Cause) {
 	err := validateUser(request.Name)
 	if err != nil {
 		return nil, err
@@ -45,17 +46,25 @@ func NewAuthor(request Request) (*Author, error) {
 }
 
 // Enterprise Rules
-func validateUser(name string) error {
-	var errs []error
+func validateUser(name string) []httpResponse.Cause {
+	var errs []httpResponse.Cause
 	if len(name) < 3 {
-		errs = append(errs, InvalidNameLenErr)
+		cause := httpResponse.Cause{
+			Field:   "name",
+			Message: InvalidNameLenErr.Error(),
+		}
+		errs = append(errs, cause)
 	}
 	if !isValidName(name) {
-		errs = append(errs, InvalidNameErr)
+		cause := httpResponse.Cause{
+			Field:   "name",
+			Message: InvalidNameErr.Error(),
+		}
+		errs = append(errs, cause)
 	}
 
 	if len(errs) > 0 {
-		return errors.Join(errs...)
+		return errs
 	}
 
 	return nil

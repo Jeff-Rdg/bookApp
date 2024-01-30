@@ -1,8 +1,8 @@
 package configs
 
 import (
-	"BookApp/author"
-	"BookApp/book"
+	"BookApp/internal/entities/author"
+	"BookApp/internal/entities/book"
 	"fmt"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"

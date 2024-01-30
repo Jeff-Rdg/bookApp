@@ -1,7 +1,8 @@
 package book
 
 import (
-	"BookApp/author"
+	"BookApp/internal/entities/author"
+	"BookApp/internal/httpResponse"
 	"BookApp/pkg/filter"
 	"BookApp/pkg/pagination"
 	"errors"
@@ -37,7 +38,7 @@ type UseCase interface {
 	List(pagination pagination.Pagination, filter filter.Book) (*pagination.Pagination, error)
 }
 
-func NewBook(name, edition string, publicationYear uint, authors []*author.Author) (*Book, error) {
+func NewBook(name, edition string, publicationYear uint, authors []*author.Author) (*Book, []httpResponse.Cause) {
 	err := validateBook(publicationYear, authors)
 	if err != nil {
 		return nil, err
@@ -51,18 +52,26 @@ func NewBook(name, edition string, publicationYear uint, authors []*author.Autho
 	}, nil
 }
 
-func validateBook(publicationYear uint, authors []*author.Author) error {
-	var errs []error
+func validateBook(publicationYear uint, authors []*author.Author) []httpResponse.Cause {
+	var errs []httpResponse.Cause
 	now := time.Now()
 	if publicationYear > uint(now.Year()) {
-		errs = append(errs, InvalidYearInformedErr)
+		cause := httpResponse.Cause{
+			Field:   "publication_year",
+			Message: InvalidYearInformedErr.Error(),
+		}
+		errs = append(errs, cause)
 	}
 	if authors == nil {
-		errs = append(errs, AuthorsNilErr)
+		cause := httpResponse.Cause{
+			Field:   "author_ids",
+			Message: AuthorsNilErr.Error(),
+		}
+		errs = append(errs, cause)
 	}
 
 	if len(errs) > 0 {
-		return errors.Join(errs...)
+		return errs
 	}
 	return nil
 }

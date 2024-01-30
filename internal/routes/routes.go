@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"BookApp/author"
-	"BookApp/book"
+	"BookApp/internal/entities/author"
+	"BookApp/internal/entities/book"
 	"BookApp/internal/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
