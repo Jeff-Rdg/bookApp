@@ -99,24 +99,7 @@ Content-Length: 641
     }
 }
    ```
-- BadRequest:
-```http
-HTTP/1.1 400 Bad Request
-Content-Type: application/problem+json
-Date: Wed, 17 Jan 2024 19:13:39 GMT
-Content-Length: 184
-```
-```json
-{
-    "title": "error to list authors",
-    "detail": "please, refer to the errors property for additional details",
-    "status": 400,
-    "error": [
-        "page must contain only numbers"
-    ],
-    "instance": "/author/"
-}
-```
+
 **2. GET/author/:id**
  - Descrição: retorna informações especificas de um autor, buscando por seu id.
  - Parâmetros: id
@@ -141,24 +124,6 @@ Content-Length: 150
     "DeletedAt": null,
     "name": "J. K. Rowling"
   }
-}
-```
-- Not Found:
-```http
-HTTP/1.1 404 Not Found
-Content-Type: application/problem+json
-Date: Wed, 17 Jan 2024 19:25:38 GMT
-Content-Length: 177
-```
-```json
-{
-  "title": "error to find author by id",
-  "detail": "please, refer to the errors property for additional details",
-  "status": 404,
-  "error": [
-    "record not found"
-  ],
-  "instance": "/author/500"
 }
 ```
 
@@ -186,24 +151,6 @@ Content-Length: 150
     "DeletedAt": null,
     "name": "J. K. Rowling"
   }
-}
-```
-- Not Found:
-```http
-HTTP/1.1 404 Not Found
-Content-Type: application/problem+json
-Date: Wed, 17 Jan 2024 19:25:38 GMT
-Content-Length: 195
-```
-```json
-{
-    "title": "error to find author by name",
-    "detail": "please, refer to the errors property for additional details",
-    "status": 404,
-    "error": [
-        "record not found"
-    ],
-    "instance": "/author/search/J. K. Rowlin"
 }
 ```
 
@@ -237,24 +184,7 @@ Content-Length: 150
 "message":"csv uploaded successfully"
 }
 ```
-- Bad Request:
-```http
-HTTP/1.1 400 Bad Request
-Content-Type: application/problem+json
-Date: Thu, 18 Jan 2024 13:50:13 GMT
-Content-Length: 195
-```
-```json
-{
-    "title": "error to process csv file",
-    "detail": "please, refer to the errors property for additional details",
-    "status": 400,
-    "error": [
-        "author exists: J. K. Rowling"
-    ],
-    "instance": "/author/upload_csv"
-}
-```
+
 ### Livros
 
 
