@@ -4,6 +4,7 @@ import (
 	"BookApp/internal/entities/author"
 	"BookApp/internal/entities/book"
 	"BookApp/internal/handlers"
+	"BookApp/internal/middlewares"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"gorm.io/gorm"
@@ -19,6 +20,7 @@ func LoadRoutes(db *gorm.DB) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(middlewares.LogException)
 
 	r.Route("/author", func(r chi.Router) {
 		r.Get("/", authorHandler.List)
